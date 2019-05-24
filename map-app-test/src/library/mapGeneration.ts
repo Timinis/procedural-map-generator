@@ -58,10 +58,16 @@ const createBinaryTree = (map: customMap): BinaryPartitionTree => {
   return { value: map, left: null, right: null };
 };
 
-const getRandomIntInclusive = (min: number, max: number): number => {
+const getRandomPercentageInclusive = (min: number, max: number): number => {
   min = Math.ceil(min);
   max = Math.floor(max);
   return (Math.floor(Math.random() * (max - min) + 1) + min) / 100; //The maximum is inclusive and the minimum is inclusive
+};
+
+const getRandomIntInclusive = (min: number, max: number): number => {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min) + 1) + min; //The maximum is inclusive and the minimum is inclusive
 };
 
 const generateNewMap = (width: number, height: number): customMap => {
@@ -69,35 +75,43 @@ const generateNewMap = (width: number, height: number): customMap => {
 };
 
 const verticalSplit = (mapToBeDivided: customMap): customMap[] => {
-  let dividedPoint = Math.floor(
-    (mapToBeDivided.xAxis[1] + 1) * getRandomIntInclusive(35, 70)
+  let dividedLength = Math.floor(
+    (mapToBeDivided.xAxis[1] - mapToBeDivided.xAxis[0] + 1) *
+      getRandomPercentageInclusive(35, 70)
   );
 
   return [
     {
-      xAxis: [mapToBeDivided.xAxis[0], dividedPoint - 1],
+      xAxis: [
+        mapToBeDivided.xAxis[0],
+        mapToBeDivided.xAxis[0] + dividedLength - 1
+      ],
       yAxis: [...mapToBeDivided.yAxis]
     },
     {
-      xAxis: [dividedPoint, mapToBeDivided.xAxis[1]],
+      xAxis: [dividedLength + mapToBeDivided.xAxis[0], mapToBeDivided.xAxis[1]],
       yAxis: [...mapToBeDivided.yAxis]
     }
   ];
 };
 
 const horizontalSplit = (mapToBeDivided: customMap): customMap[] => {
-  let dividedPoint = Math.floor(
-    (mapToBeDivided.yAxis[1] + 1) * getRandomIntInclusive(35, 70)
+  let dividedLength = Math.floor(
+    (mapToBeDivided.yAxis[1] - mapToBeDivided.yAxis[0] + 1) *
+      getRandomPercentageInclusive(35, 70)
   );
 
   return [
     {
       xAxis: [...mapToBeDivided.xAxis],
-      yAxis: [mapToBeDivided.yAxis[0], dividedPoint - 1]
+      yAxis: [
+        mapToBeDivided.yAxis[0],
+        mapToBeDivided.yAxis[0] + dividedLength - 1
+      ]
     },
     {
       xAxis: [...mapToBeDivided.xAxis],
-      yAxis: [dividedPoint, mapToBeDivided.yAxis[1]]
+      yAxis: [dividedLength + mapToBeDivided.yAxis[0], mapToBeDivided.yAxis[1]]
     }
   ];
 };
@@ -180,4 +194,10 @@ const mapRandomizerBreadth = (
   return tree;
 };
 
-export { generateNewMap, mapRandomizerDepth, mapRandomizerBreadth, getLeaf };
+export {
+  generateNewMap,
+  mapRandomizerDepth,
+  mapRandomizerBreadth,
+  getLeaf,
+  getRandomIntInclusive
+};
