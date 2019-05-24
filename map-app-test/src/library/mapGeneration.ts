@@ -19,6 +19,22 @@ interface BinaryPartitionTree {
   right: BinaryPartitionTree | null;
 }
 
+interface Tunnel {
+  hTunnel: HTunnelCordinates;
+
+  vTunnel: VTunnelCordinates;
+}
+
+interface HTunnelCordinates {
+  tunnelRange: number[];
+  yCordinates: number;
+}
+
+interface VTunnelCordinates {
+  tunnelRange: number[];
+  xCordinates: number;
+}
+
 const createNode = (value: any): QueNode => {
   return { value, next: null };
 };
@@ -194,10 +210,76 @@ const mapRandomizerBreadth = (
   return tree;
 };
 
+const placeRoom = (mapArea: customMap[]): customMap[] => {
+  let returnArea: customMap[] = [];
+  mapArea.forEach(element => {
+    let xNumber1 = getRandomIntInclusive(
+      element.xAxis[0],
+      Math.floor((element.xAxis[1] - element.xAxis[0]) / 2) + element.xAxis[0]
+    );
+    let xNumber2 = getRandomIntInclusive(xNumber1 + 3, element.xAxis[1] - 1);
+    let yNumber1 = getRandomIntInclusive(
+      element.yAxis[0],
+      Math.floor((element.yAxis[1] - element.yAxis[0]) / 2) + element.yAxis[0]
+    );
+    let yNumber2 = getRandomIntInclusive(yNumber1 + 3, element.yAxis[1] - 1);
+
+    let roomArea = { xAxis: [xNumber1, xNumber2], yAxis: [yNumber1, yNumber2] };
+
+    returnArea = [...returnArea, ...[roomArea]];
+  });
+  return returnArea;
+};
+
+const connectRoom = (roomArea: customMap[]): Tunnel[] => {
+  let randomChosenPoints: any = [];
+  let tunnelArray: Tunnel[] = [];
+
+  roomArea.forEach(element => {
+    let pointX = getRandomIntInclusive(element.xAxis[0], element.xAxis[1] - 1);
+    let pointY = getRandomIntInclusive(element.yAxis[0], element.yAxis[1] - 1);
+    randomChosenPoints = [...randomChosenPoints, [pointX, pointY]];
+  });
+
+  for (let i = 0; i < randomChosenPoints.length - 1; i++) {
+    let firstPointX = randomChosenPoints[i][0];
+    let secondPointX = randomChosenPoints[i + 1][0];
+    let hTunnelY = randomChosenPoints[i][1];
+    let hTunnelRange = [firstPointX, secondPointX];
+    hTunnelRange.sort(function(a, b) {
+      return a - b;
+    });
+    let HTunnelCordinates: HTunnelCordinates = {
+      tunnelRange: hTunnelRange,
+      yCordinates: hTunnelY
+    };
+
+    let firstPointY = randomChosenPoints[i][1];
+    let secondPointY = randomChosenPoints[i + 1][1];
+    let vTunnelX = randomChosenPoints[i + 1][0];
+    let vTunnelRange = [firstPointY, secondPointY];
+    vTunnelRange.sort(function(a, b) {
+      return a - b;
+    });
+    let VTunnelCordinates: VTunnelCordinates = {
+      tunnelRange: [firstPointY, secondPointY],
+      xCordinates: vTunnelX
+    };
+    tunnelArray = [
+      ...tunnelArray,
+      { hTunnel: HTunnelCordinates, vTunnel: VTunnelCordinates }
+    ];
+  }
+  console.log(tunnelArray);
+  return tunnelArray;
+};
+
 export {
   generateNewMap,
   mapRandomizerDepth,
   mapRandomizerBreadth,
   getLeaf,
-  getRandomIntInclusive
+  getRandomIntInclusive,
+  placeRoom,
+  connectRoom
 };
